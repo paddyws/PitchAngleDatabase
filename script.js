@@ -46,7 +46,7 @@ function handleFileUpload(event) {
                 'doi': 'DOI',
                 'method': 'Method',
                 'band': 'Band',
-                'ImageSource': 'ImageSource/Instrument',
+                'ImageSource': 'ImageSource',
                 'arm_or_whole': 'Arm_or_Whole'
             };
 
