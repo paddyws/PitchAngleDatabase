@@ -3,7 +3,7 @@ let galaxyData = [];
 // Auto-load default Excel file from the repo
 async function loadDefaultExcelFile() {
     try {
-        const response = await fetch('pitch_data.xlsx'); // <-- Make sure this matches the filename in your repo
+        const response = await fetch('Galaxy Pitch Angle Database (Galaxy PAnDa) (1).xls'; // <-- Make sure this matches the filename in your repo
         const arrayBuffer = await response.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
