@@ -1,4 +1,57 @@
 let galaxyData = [];
+
+// Auto-load default Excel file from the repo
+async function loadDefaultExcelFile() {
+    try {
+        const response = await fetch('pitch_data.xlsx'); // <-- Make sure this matches the filename in your repo
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawData = XLSX.utils.sheet_to_json(worksheet, {
+            raw: true,
+            defval: null
+        });
+
+        // Map Excel headers to internal keys
+        const headerMap = {
+            'id': 'ID',
+            'galaxy_name': 'Galaxy_name',
+            'j2000_position': 'J2000_position',
+            'pa_degrees': 'PA_degrees',
+            'pa_err_degrees': 'PA_err_degrees',
+            'band_measured_in': 'Band_Measured_In',
+            'reference': 'Reference',
+            'doi': 'DOI',
+            'method': 'Method',
+            'band': 'Band',
+            'imagesource/instrument': 'ImageSource',
+            'arm_or_whole': 'Arm_or_Whole'
+        };
+
+        galaxyData = rawData.map(row => {
+            const mapped = {};
+            Object.keys(row).forEach(key => {
+                const normalizedKey = key.trim().toLowerCase().replace(/ |-/g, '_');
+                const internalKey = headerMap[normalizedKey] || key;
+                mapped[internalKey] = row[key];
+            });
+            return mapped;
+        });
+
+        updateStatistics();
+        displayGalaxies(galaxyData);
+        createPitchAngleChart();
+        renderAllFilters();
+        filterAndDisplay();
+        updateFilteredStatistics(galaxyData);
+    } catch (e) {
+        console.error('Auto-load failed:', e);
+    }
+}
+
+
 let pitchAngleChart = null;
 
 // State for sorting, pagination, and filtering
@@ -46,7 +99,7 @@ function handleFileUpload(event) {
                 'doi': 'DOI',
                 'method': 'Method',
                 'band': 'Band',
-                'ImageSource': 'ImageSource',
+                'imagesource/instrument': 'ImageSource',
                 'arm_or_whole': 'Arm_or_Whole'
             };
 
@@ -448,6 +501,7 @@ function filterAndDisplay() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', () => {
+    loadDefaultExcelFile();
     // Add file input listener
     const fileInput = document.getElementById('fileInput');
     fileInput.addEventListener('change', handleFileUpload);
