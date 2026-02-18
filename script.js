@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadAllBtn = document.getElementById('downloadAllBtn');
   if (downloadAllBtn) {
     downloadAllBtn.addEventListener('click', () => {
-      downloadCSV(galaxyData, 'galaxies_filtered_v1.0.0.csv');
+      downloadCSV(galaxyData, 'galaxies_all_v1.0.0.csv');
     });
   }
 
@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadFilteredBtn = document.getElementById('downloadFilteredBtn');
   if (downloadFilteredBtn) {
     downloadFilteredBtn.addEventListener('click', () => {
-      downloadCSV(lastFilteredData, 'galaxies_filtered.csv');
+      downloadCSV(lastFilteredData, 'galaxies_filtered_v1.0.0.csv');
     });
   }
 
