@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadAllBtn = document.getElementById('downloadAllBtn');
   if (downloadAllBtn) {
     downloadAllBtn.addEventListener('click', () => {
-      downloadCSV(galaxyData, 'galaxies_all_v1.0.0.csv');
+      downloadCSV(galaxyData, 'galaxies_all_v1.0.1.csv');
     });
   }
 
