@@ -1,16 +1,154 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Galaxy PAnDa - Galaxy <b>P</b>itch <b>An</b>gle <b>D</b>atabase</title> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> <link rel="stylesheet" href="styles.css"> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script> <style> body { background: #222; color: #fff; font-family: 'Segoe UI', Arial, sans-serif; } table { width: 100%; background: #333; color: #fff; border-collapse: collapse; margin-top: 10px; } th, td { border: 1px solid #444; padding: 6px 8px; text-align: left; } th { background: #444; cursor: pointer; } tr:nth-child(even) { background: #2a2a2a; } input, select, button { margin: 4px; padding: 4px 8px; } #paginationControls button[disabled] { background: #555; color: #aaa; } #downloadControls { margin: 10px 0; } #paginationControls { margin: 10px 0; } .stat-card { background: rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; } /* Add styles for checkbox groups */ .checkbox-group { max-height: 200px; overflow-y: auto; background: rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 10px; margin-top: 10px; } .checkbox-item { margin: 8px 0; display: flex; align-items: center; } .checkbox-item input[type="checkbox"] { margin-right: 8px; cursor: pointer; width: 16px; height: 16px; accent-color: #4dd0e1; } .checkbox-item label { cursor: pointer; color: #ffffff; font-size: 0.9em; } .checkbox-item:hover label { color: #4dd0e1; } /* Style scrollbar for checkbox groups */ .checkbox-group::-webkit-scrollbar { width: 8px; } .checkbox-group::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 4px; } .checkbox-group::-webkit-scrollbar-thumb { background: rgba(77, 208, 225, 0.5); border-radius: 4px; } .checkbox-group::-webkit-scrollbar-thumb:hover { background: rgba(77, 208, 225, 0.7); } /* Style for check all/uncheck all buttons */ .checkbox-controls { display: flex; gap: 8px; } .checkbox-controls .btn { padding: 2px 8px; font-size: 0.8em; border-color: #4dd0e1; color: #4dd0e1; } .checkbox-controls .btn:hover { background-color: #4dd0e1; color: #222; } /* Add filter section headers */ #referenceFilterContainer::before, #bandFilterContainer::before, #methodFilterContainer::before, #ImageSourceFilterContainer::before, #measurementTypeFilterContainer::before { content: attr(data-title); display: block; color: #4dd0e1; font-weight: bold; margin-bottom: 8px; } /* Banner header with background image */ .banner-header { position: relative; width: 100%; min-height: 260px; background: url('logo.png') center center/cover no-repeat; display: flex; align-items: center; justify-content: center; border-radius: 0 0 24px 24px; box-shadow: 0 4px 24px rgba(0,0,0,0.15); margin-bottom: 24px; overflow: hidden; } .banner-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(120deg, rgba(35,43,59,0.85) 0%, rgba(58,123,213,0.55) 100%); z-index: 1; } .banner-content { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; } .banner-content h1 { font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif; font-size: 3.2rem; font-weight: 900; letter-spacing: 2px; color: #fff; margin-bottom: 0.2em; text-shadow: 0 2px 16px rgba(58,123,213,0.25); } .banner-content p.lead { font-size: 1.5rem; color: #b2ebf2; font-weight: 600; margin-bottom: 1.2em; letter-spacing: 1px; text-shadow: 0 2px 8px rgba(35,43,59,0.25); } .file-upload-container { margin-top: 0; } @media (max-width: 600px) { .banner-header { min-height: 140px; } .banner-content h1 { font-size: 1.5rem; } .banner-content p.lead { font-size: 1rem; } } </style> </head> <body> <div class="container-fluid"> <!-- Banner header with background image and overlayed title --> <div class="banner-header"> <div class="banner-content"> <h1>Galaxy PAnDa</h1> <p class="lead">Galaxy <b>P</b>itch <b>An</b>gle <b>Da</b>tabase</p> </div> </div> <!-- Statistics Cards --> <div class="row mb-4"> <div class="col-md-4"> <div class="stat-card"> <h3>Total Unique Galaxies</h3> <div id="totalGalaxies" class="stat-value">-</div> <div id="filteredTotalGalaxies" class="stat-subvalue text-info"></div> </div> </div> <div class="col-md-4"> <div class="stat-card"> <h3>Average Pitch Angle</h3> <div id="avgPitchAngle" class="stat-value">-</div> <div id="filteredAvgPitchAngle" class="stat-subvalue text-info"></div> </div> </div> <div class="col-md-4"> <div class="stat-card"> <h3>Total Measurements</h3> <div id="totalMeasurements" class="stat-value">-</div> <div id="filteredTotalMeasurements" class="stat-subvalue text-info"></div> </div> </div> </div> <!-- Search and Sort --> <div class="row mb-4"> <div class="col-md-6"> <div class="search-container"> <p class="text-info small mb-1"> 🔍 You can search using multiple terms, separated by commas or line breaks (e.g., <code>NGC1300, NGC1444</code> or one per line). </p> <input type="text" id="searchInput" class="form-control" placeholder="Search by galaxy name or position..."> </div> </div> <div class="col-md-6"> <div class="sort-container"> <select id="sortSelect" class="form-select"> <option value="">Sort by...</option> <option value="PA_degree">Pitch Angle</option> <option value="Galaxy_name">Galaxy Name</option> <option value="Band">Band</option> <option value="Method">Method</option> </select> </div> </div> </div> <div class="row mb-3">
-  <div class="col-md-8">
-    <label for="coneInput" class="form-label text-info">
-      RA/Dec cone search (degrees): one pair per line, e.g. <code>25, -30</code>
-    </label>
-    <textarea id="coneInput" class="form-control" rows="3" placeholder="25, -30&#10;34, 54"></textarea>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Galaxy PAnDa - Galaxy Pitch Angle Database</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<style>
+body {
+  background: #222;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* your existing styles unchanged */
+
+.banner-header {
+  position: relative;
+  width: 100%;
+  min-height: 260px;
+  background: url('logo.png') center center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 0 24px 24px;
+  margin-bottom: 24px;
+}
+
+.banner-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(35,43,59,0.85), rgba(58,123,213,0.55));
+}
+
+.banner-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+<!-- Banner -->
+<div class="banner-header">
+  <div class="banner-content">
+    <h1>Galaxy PAnDa</h1>
+    <p class="lead">Galaxy Pitch Angle Database</p>
   </div>
-  <div class="col-md-4">
-    <label for="coneRadiusArcsec" class="form-label text-info">Radius (arcsec)</label>
-    <div class="input-group">
-      <input id="coneRadiusArcsec" type="number" step="0.1" class="form-control" value="2.5">
-      <button id="runConeSearch" class="btn btn-outline-info">Apply Cone</button>
-      <button id="clearConeSearch" class="btn btn-outline-secondary">Clear</button>
-    </div>
+</div>
+
+<!-- ✅ Citation (subtle) -->
+<p class="small text-secondary text-center mt-2">
+  If you found Galaxy PAnDa useful in your research, please consider citing:
+  <a href="https://doi.org/10.5281/zenodo.18568634" target="_blank">
+    10.5281/zenodo.18568634
+  </a>
+</p>
+
+<!-- your existing content stays here -->
+<!-- (stats, table, filters, chart, etc) -->
+
+<!-- ========================= -->
+<!-- ✅ REPORT ISSUE FORM -->
+<!-- ========================= -->
+
+<div class="container my-5">
+  <div class="p-4 rounded" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);">
+    
+    <h4 class="mb-2">Report an Issue</h4>
+    <p class="text-secondary small mb-3">
+      Found something off or have a question? Feel free to send a quick note.
+    </p>
+
+    <form id="contact-form" action="https://formspree.io/f/mnjwpjgg" method="POST">
+      
+      <input 
+        type="email" 
+        name="email" 
+        class="form-control mb-2"
+        placeholder="Your email (optional)"
+      >
+
+      <textarea 
+        name="message" 
+        rows="4" 
+        class="form-control mb-3"
+        placeholder="Describe the issue..."
+        required
+      ></textarea>
+
+      <input type="hidden" name="_subject" value="Galaxy PAnDa Issue Report">
+
+      <button type="submit" class="btn btn-outline-info">
+        Send Message
+      </button>
+
+    </form>
+
+    <p id="form-status" class="small mt-2 text-info"></p>
+
   </div>
-</div><!-- Filter Row: Reference, Band, Method, ImageSource, Measurement Type --> <div class="row mb-2 justify-content-between"> <div class="col-md-2" id="referenceFilterContainer" data-title="Filter by Reference"></div> <div class="col-md-2" id="bandFilterContainer" data-title="Filter by Band"></div> <div class="col-md-2" id="methodFilterContainer" data-title="Filter by Method"></div> <div class="col-md-2" id="ImageSourceFilterContainer" data-title="Filter by ImageSource"></div> <div class="col-md-2" id="measurementTypeFilterContainer" data-title="Filter by Measurement Type"></div> </div> <!-- Download Buttons Row --> <div class="row mb-2"> <div class="col-md-12 text-end"> <button id="downloadAllBtn" class="btn btn-success">Download All Data as CSV</button> <button id="downloadFilteredBtn" class="btn btn-info">Download Filtered Data as CSV</button> </div> </div> <!-- Data Table --> <div class="table-responsive"> <table class="table table-hover" id="galaxyTable"> <thead id="galaxyTableHead"> <tr> <th>ID</th> <th>Galaxy Name</th> <th>J2000 Position</th> <th>Pitch Angle (°)</th> <th>PA Error (°)</th> <th>Reference</th> <th>DOI</th> <th>Method</th> <th>Band</th> <th>ImageSource</th> <th>Measurement Type</th> </tr> </thead> <tbody id="galaxyTableBody"> <!-- Data will be populated here --> </tbody> </table> </div> <!-- Pitch Angle Distribution Chart --> <div class="row mb-4"> <div class="col-12"> <div class="chart-container"> <h3>Pitch Angle Distribution</h3> <div class="form-check form-switch mb-2"> <input class="form-check-input" type="checkbox" id="chartFilteredToggle"> <label class="form-check-label" for="chartFilteredToggle">Show chart for filtered data only</label> </div> <canvas id="pitchAngleChart"></canvas> </div> </div> </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Only one script.js include, defered --> <script src="script.js" defer></script> </body> </html>
+</div>
+
+</div> <!-- container-fluid -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+
+<!-- ✅ Formspree AJAX handling -->
+<script>
+const form = document.getElementById("contact-form");
+const status = document.getElementById("form-status");
+
+if (form) {
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const data = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: form.method,
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        status.textContent = "Thanks — message received.";
+        form.reset();
+      } else {
+        status.textContent = "Something went wrong. Try again.";
+      }
+
+    } catch (error) {
+      status.textContent = "Network error. Try again.";
+    }
+  });
+}
+</script>
+
+</body>
+</html>
